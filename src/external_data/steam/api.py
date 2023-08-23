@@ -5,8 +5,8 @@ import json
 import logging
 import requests
 from lib.http import make_request
-from external_data.steam.models import ItemRecord
-from external_data.steam.constants import BASE_URL, DEFAULT_HEADERS
+from steam.models import ItemRecord
+from steam.constants import BASE_URL, DEFAULT_HEADERS
 
 
 logger = logging.getLogger(__name__)
