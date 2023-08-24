@@ -6,7 +6,9 @@ on:
 
 env:
   AWS_REGION: us-east-2
+  ECR_REPOSITORY: scraping
   IMAGE_TAG: webscraper
+  IAM_ROLE_ARN: arn:aws:iam::958915567620:role/cralwer-github-actions-role
 
 permissions:
   id-token: write # Required for requesting  JWT
@@ -21,7 +23,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          role-to-assume: arn:aws:iam::958915567620:oidc-provider/token.actions.githubusercontent.com
+          role-to-assume: ${{ env.IAM_ROLE_ARN }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
