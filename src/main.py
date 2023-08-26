@@ -7,11 +7,11 @@ from scheduling.schedulers import GroupedDelayScheduler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from external_data.steam.models import load_tables as steam_create_db_tables
-from external_data.steam.api import get_all_app_listings, get_listings_page
+from external_data.steam.api import get_listings_page
 
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(name)s::%(levelname)s %(asctime)s: %(message)s'
 )
 
@@ -38,7 +38,7 @@ def data_update(db_engine, title, data_func, *data_args, **data_kwargs):
 
     for item in items:
         with Session(db_engine) as session:
-            session.add_all(item)
+            session.add(item)
             session.commit()
 
     logger.info(f'Rust data pull took {time.perf_counter() - start}')
@@ -60,8 +60,21 @@ if __name__ == '__main__':
             data_func=get_listings_page,
             app_id=252490,
             start=start,
-            count=100,
+            count=100
+        ))
 
+    rust_item_jobs2 = []
+    for i in range(37):
+        start = i * 100
+        rust_item_jobs2.append(RepeatableJob(
+            delay_tm=3,
+            func=data_update,
+            db_engine=db_engine,
+            title='Steam - Rust Market Listings',
+            data_func=get_listings_page,
+            app_id=252490,
+            start=start,
+            count=100
         ))
 
     # rust_items_job = RepeatableJob(
@@ -70,6 +83,7 @@ if __name__ == '__main__':
     # sched = DelayRespectingScheduler([rust_items_job])
     sched = GroupedDelayScheduler()
     sched.add_job_group(rust_item_jobs, group_delay=2)
+    sched.add_job_group(rust_item_jobs, group_delay=6)
 
     while True:
         job = sched.next_job()

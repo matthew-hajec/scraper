@@ -48,7 +48,7 @@ class RepeatableJob:
             # Either handle the error with a callback, or by default just log.
             if err_cb == None:
                 logging.info(
-                    f'Failed to execute job, continuing as normal. Error: {str(e)}', exc_info=True)
+                    f'Job produced an exception that was not caught within it\'s function, continuing as normal, but logging. Error: {str(e)}', exc_info=True)
             else:
                 err_cb(e)
         self.last_run_finish = time.time()
