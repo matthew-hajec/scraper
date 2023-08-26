@@ -11,7 +11,7 @@ WORKDIR /home/$DOCKER_USER
 USER $DOCKER_USER
 
 
-VOLUME ~/logs
+VOLUME logs
 
 # Import code
 COPY src src
