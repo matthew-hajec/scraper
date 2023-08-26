@@ -1,5 +1,6 @@
 import os
 import time
+import math
 import logging
 import threading
 from scheduling.job import RepeatableJob
@@ -19,19 +20,34 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def data_update(db_engine, title, data_func, *data_args, **data_kwargs):
+def data_update(db_engine, title, data_func, max_failures=5, *data_args, **data_kwargs):
     logger.info(f'Updating Data: {title}')
 
     start = time.perf_counter()
 
     steam_create_db_tables(db_engine)
 
-    try:
-        items = data_func(*data_args, **data_kwargs)
-    except Exception as e:
-        logger.error(
-            f'Exception raised while trying to retreive data: {str(e)}')
-        return
+    failures = 0
+    while True:
+        if failures >= max_failures:
+            logging.info(
+                f'Max failures acheived ({failures}/{max_failures}). Exiting update.')
+            return
+
+        if failures > 0:
+            # 3, 23, 43, 63, ... Sometimes, sending a request immediately after works fine, but if it doesn't, add a more significant amount of time
+            sleep_time = 3 + (20 * (failures - 1))
+            logger.info(
+                f'Failed ({failures}/{max_failures}), sleeping for {sleep_time} seconds')
+            time.sleep(sleep_time)
+
+        try:
+            items = data_func(*data_args, **data_kwargs)
+            break
+        except Exception as e:
+            logger.info(
+                f'Exception raised while trying to retreive data: {str(e)}')
+            failures += 1
 
     if not hasattr(items, '__iter__') and not hasattr(items, '__next__'):
         raise TypeError('data_func should return an iterable.')
@@ -49,49 +65,31 @@ if __name__ == '__main__':
     db_engine = create_engine(db_url)
     logger.info(f'Running with database dialect: {db_engine.dialect.name}')
 
-    rust_item_jobs = []
-    for i in range(37):
-        start = i * 100
-        rust_item_jobs.append(RepeatableJob(
-            delay_tm=3,
-            func=data_update,
-            db_engine=db_engine,
-            title='Steam - Rust Market Listings',
-            data_func=get_listings_page,
-            app_id=252490,
-            start=start,
-            count=100
-        ))
-
-    rust_item_jobs2 = []
-    for i in range(37):
-        start = i * 100
-        rust_item_jobs2.append(RepeatableJob(
-            delay_tm=3,
-            func=data_update,
-            db_engine=db_engine,
-            title='Steam - Rust Market Listings',
-            data_func=get_listings_page,
-            app_id=252490,
-            start=start,
-            count=100
-        ))
-
-    # rust_items_job = RepeatableJob(
-    #     3, data_update, db_engine, 'Steam - Rust Market Listings', get_all_app_listings, 252490, max_failures=8)
-
-    # sched = DelayRespectingScheduler([rust_items_job])
     sched = GroupedDelayScheduler()
-    sched.add_job_group(rust_item_jobs, group_delay=2)
-    sched.add_job_group(rust_item_jobs, group_delay=6)
+
+    if (os.getenv('STEAM_ITEMS_APP_ID')):
+        app_id = int(os.getenv('STEAM_ITEMS_APP_ID'))
+        num_items = int(os.getenv('STEAM_ITEMS_NUM_ITEMS'))
+        max_fails = int(os.getenv('STEAM_ITEMS_MAX_FAILS', '9'))
+
+        steam_listing_jobs = []
+
+        for i in range(math.ceil(num_items / 100)):
+            start = i * 100
+            steam_listing_jobs.append(RepeatableJob(
+                delay_tm=4,
+                func=data_update,
+                db_engine=db_engine,
+                title=f'Steam - {app_id} Market Listings (start={start}, count=100)',
+                data_func=get_listings_page,
+                max_failures=max_fails,
+                app_id=app_id,
+                count=100
+            ))
+
+        sched.add_job_group(steam_listing_jobs, group_delay=2)
 
     while True:
         job = sched.next_job()
         t = threading.Thread(target=job.execute)
         t.run()
-
-
-#     data_update(db_engine, 'Steam - Rust Market Listings', get_all_app_listings, 252490, count=COUNT,
-#                 max_failures=MAX_FAILS, use_scrapeops=USE_SCRAPEOPS)
-# #    pull_steam_listings(db_engine, 252490)
-s
