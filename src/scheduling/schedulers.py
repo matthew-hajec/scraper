@@ -2,7 +2,6 @@ import abc
 import time
 import logging
 from dataclasses import dataclass
-from collections import namedtuple
 from scheduling.job import RepeatableJob
 
 # <logging-setup>
@@ -29,6 +28,9 @@ class _JobGroup:
         return time.time() >= self.last_job_start + self.delay
 
     def next_job(self) -> RepeatableJob:
+        if len(self.jobs) == 0:
+            raise ValueError('Job list cannt be empty')
+
         self.last_job = time.time()
         logger.debug(
             f'Scheduling next job... (job_offset={self.job_offset}, job_count={len(self.jobs)})')
@@ -56,6 +58,10 @@ class GroupedDelayScheduler(Scheduler):
 
     def _next_group(self) -> _JobGroup:
         num_groups = len(self._groups)
+
+        if num_groups == 0:
+            raise ValueError('No job groups added to scheduler.')
+
         for i in range(num_groups):
             group_idx = (i + self._group_offset) % num_groups
             group = self._groups[(i + self._group_offset) % num_groups]
