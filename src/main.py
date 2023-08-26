@@ -14,7 +14,7 @@ from utils.db import init_engine
 logging.basicConfig(
     level=logging.INFO,
     format='%(name)s::%(levelname)s %(asctime)s: %(message)s',
-    filename='/var/logs/logs.txt'
+    filename='~/logs'
 )
 
 

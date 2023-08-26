@@ -10,7 +10,8 @@ RUN useradd --create-home $DOCKER_USER
 WORKDIR /home/$DOCKER_USER
 USER $DOCKER_USER
 
-VOLUME /var/logs
+
+VOLUME ~/logs
 
 # Import code
 COPY src src
