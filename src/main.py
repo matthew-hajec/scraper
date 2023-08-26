@@ -1,8 +1,8 @@
 import os
-import time
 import math
 import logging
 import threading
+from dotenv import load_dotenv
 from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
 from sqlalchemy import create_engine
@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == '__main__':
+    load_dotenv()
+
     db_engine = init_engine()
     logger.info(f'Running with database dialect: {db_engine.dialect.name}')
 
