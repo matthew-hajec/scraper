@@ -5,7 +5,6 @@ import threading
 from dotenv import load_dotenv
 from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
-from sqlalchemy import create_engine
 from utils.data_pull import data_update
 from external_data.steam.models import load_tables as steam_create_db_tables
 from external_data.steam.api import get_listings_page
@@ -30,6 +29,8 @@ if __name__ == '__main__':
     sched = GroupedDelayScheduler()
 
     if (os.getenv('STEAM_ITEMS_APP_ID')):
+        steam_create_db_tables(db_engine)
+
         app_id = int(os.getenv('STEAM_ITEMS_APP_ID'))
         num_items = int(os.getenv('STEAM_ITEMS_NUM_ITEMS'))
         max_fails = int(os.getenv('STEAM_ITEMS_MAX_FAILS', '9'))
