@@ -1,4 +1,4 @@
-FROM python:3.10.11
+FROM python:3
 
 # Install dependencies
 COPY requirements.txt /tmp/
@@ -9,6 +9,8 @@ ARG DOCKER_USER=default_user
 RUN useradd --create-home $DOCKER_USER
 WORKDIR /home/$DOCKER_USER
 USER $DOCKER_USER
+
+VOLUME /var/logs
 
 # Import code
 COPY src src
