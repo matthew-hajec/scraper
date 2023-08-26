@@ -4,7 +4,7 @@ import time
 import json
 import logging
 import requests
-from lib.http import make_request
+from utils.http import make_request
 from external_data.steam.models import ItemRecord
 from external_data.steam.constants import BASE_URL, DEFAULT_HEADERS
 from external_data.errors import MalformedContent, ExceededMaxFailures
