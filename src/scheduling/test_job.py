@@ -1,6 +1,6 @@
 import pytest
 import time
-from job import RepeatableJob, JobExecuteBeforeDelay
+from scheduling.job import RepeatableJob, JobExecuteBeforeDelay
 
 
 def test_runs_job():

@@ -40,6 +40,7 @@ class _JobGroup:
             job = self.jobs[(i + self.job_offset) % num_jobs]
             if job.is_available():
                 self.job_offset += 1
+                self.last_job_start = time.time()
                 return job
         time.sleep(1)
         return self.next_job()

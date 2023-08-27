@@ -4,7 +4,7 @@ from functools import partial
 
 # <logging-setup>
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 # </logging-setup>
 
 
@@ -36,6 +36,9 @@ class RepeatableJob:
         Returns True if the previous execution finished more than {delay_tm} seconds ago, or if the job has not
         previously been executed. 
         """
+        available = time.time() >= self.last_run_finish + self.delay_tm
+        logger.debug(
+            f'time: {time.time()} last_run: {self.last_run_finish} delay: {self.delay_tm} available: {available}')
         return time.time() >= self.last_run_finish + self.delay_tm
 
     def execute(self, err_cb=None):
