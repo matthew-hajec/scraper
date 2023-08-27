@@ -49,3 +49,40 @@ def test_GroupDelayScheduler_enforces_jobs_delay():
     s.next_job().execute()
 
     assert True
+
+
+def test_GroupDelayScheduler_rotates_groups():
+    group1_state = {'key': 10}
+    group2_state = {'key': 20}
+
+    s = GroupedDelayScheduler()
+    group1 = [RepeatableJob(99, group1_state.__setitem__, 'key', 11)]
+    group2 = [RepeatableJob(99, group2_state.__setitem__, 'key', 21)]
+    s.add_job_group(group1, group_delay=2)
+    s.add_job_group(group2, group_delay=2)
+
+    s.next_job().execute()
+    s.next_job().execute()
+
+    assert group1_state['key'] == 11
+    assert group2_state['key'] == 21
+
+
+def test_GroupDelayScheduler_rotates_groups_even_if_jobs_available():
+    s = GroupedDelayScheduler()
+
+    group1 = [RepeatableJob(1, print, 'group 1, job 1'),
+              RepeatableJob(1, print, 'group 1, job 2')]
+
+    group2 = [RepeatableJob(1, print, 'group 2, job 1'),
+              RepeatableJob(1, print, 'group 2, job 2')]
+
+    s.add_job_group(group1, group_delay=2)
+    s.add_job_group(group2, group_delay=2)
+
+    s.next_job().execute()
+    s.next_job().execute()
+    s.next_job().execute()
+    s.next_job().execute()
+
+    raise ValueError()

@@ -47,6 +47,24 @@ class _JobGroup:
 
 
 class GroupedDelayScheduler(Scheduler):
+    """
+    Provides the ability to group RepeatableJobs into groups with
+    individual delay times. 
+
+    This is useful for organizing the timing of jobs which make
+    requests to external resources in order to prevent overloading.
+
+    First, the scheduler will search linearly for a group which is
+    not on cooldown, then it will search linearly within that group
+    for a job which is not on cooldown.
+
+    Searches for groups and jobs start at an offset. This means that
+    when performing linear search for a group, the search will start
+    from the offset value. In turn, each of these group also has an
+    offset it uses to select jobs. The group selection offset 
+    increments whenever a group is selected, and the job selection
+    offset increments whenever a job is selected from a group.
+    """
     _groups: list[_JobGroup]
     _group_offset: int
 

@@ -9,12 +9,14 @@ from utils.data_pull import data_update
 from external_data.steam.models import load_tables as steam_create_db_tables
 from external_data.steam.api import get_listings_page
 from utils.db import init_engine
+import requests
 
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(name)s::%(levelname)s %(asctime)s: %(message)s',
-    filename='/var/log/app.log'
+    # log to file if file provided in env, otherwise log to console
+    filename=os.getenv('LOG_FILE', None)
 )
 
 
