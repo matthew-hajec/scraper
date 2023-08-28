@@ -1,13 +1,11 @@
 from enum import Enum
 from urllib.parse import urlencode
-import time
 import json
 import logging
-import requests
 from utils.http import make_request
 from external_data.steam.models import ItemRecord
 from external_data.steam.constants import BASE_URL, DEFAULT_HEADERS
-from external_data.errors import MalformedContent, ExceededMaxFailures
+from external_data.errors import MalformedContent
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +26,7 @@ class SortDir(Enum):
 
 def get_listings_page(app_id: int, start=0, count=100,
                       sort_col=SortColumn.NAME, sort_dir=SortDir.ASC,
-                      use_scrapeops=False, **req_kwargs) -> (int, list[ItemRecord]):
+                      use_scrapeops=False, headers=DEFAULT_HEADERS, **req_kwargs) -> (int, list[ItemRecord]):
 
     query_str = urlencode({
         'query': '',
@@ -43,7 +41,8 @@ def get_listings_page(app_id: int, start=0, count=100,
 
     url = f'{BASE_URL}/market/search/render?{query_str}'
 
-    resp = make_request('GET', url, use_scrapeops=use_scrapeops, **req_kwargs)
+    resp = make_request('GET', url, use_scrapeops=use_scrapeops,
+                        headers=headers, **req_kwargs)
     # Raise an error if the response's status code indicates an error
     resp.raise_for_status()
 

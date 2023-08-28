@@ -68,21 +68,44 @@ def test_GroupDelayScheduler_rotates_groups():
     assert group2_state['key'] == 21
 
 
-def test_GroupDelayScheduler_rotates_groups_even_if_jobs_available():
+# def test_GroupDelayScheduler_rotates_groups_even_if_jobs_available():
+#     s = GroupedDelayScheduler()
+
+#     group1 = [RepeatableJob(1, print, 'group 1, job 1'),
+#               RepeatableJob(1, print, 'group 1, job 2')]
+
+#     group2 = [RepeatableJob(1, print, 'group 2, job 1'),
+#               RepeatableJob(1, print, 'group 2, job 2')]
+
+#     s.add_job_group(group1, group_delay=2)
+#     s.add_job_group(group2, group_delay=2)
+
+#     s.next_job().execute()
+#     s.next_job().execute()
+#     s.next_job().execute()
+#     s.next_job().execute()
+
+#     raise ValueError()
+
+
+def test_GroupScheduler_respects_group_delay():
+    error = 0.5
+
     s = GroupedDelayScheduler()
 
-    group1 = [RepeatableJob(1, print, 'group 1, job 1'),
-              RepeatableJob(1, print, 'group 1, job 2')]
+    group1 = [RepeatableJob(5, print, 'group 1, job 1'),
+              RepeatableJob(5, print, 'group 1, job 2')]
 
     group2 = [RepeatableJob(1, print, 'group 2, job 1'),
               RepeatableJob(1, print, 'group 2, job 2')]
 
-    s.add_job_group(group1, group_delay=2)
-    s.add_job_group(group2, group_delay=2)
+    s.add_job_group(group1, group_delay=5)
+    s.add_job_group(group2, group_delay=5)
 
+    start = time.time()
     s.next_job().execute()
     s.next_job().execute()
     s.next_job().execute()
     s.next_job().execute()
 
-    raise ValueError()
+    assert time.time() >= start + 5 - error

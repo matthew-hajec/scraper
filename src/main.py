@@ -9,8 +9,7 @@ from utils.data_pull import data_update
 from external_data.steam.models import load_tables as steam_create_db_tables
 from external_data.steam.api import get_listings_page
 from utils.db import init_engine
-import requests
-
+from external_data.amazon.api import get_listing_info
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -55,7 +54,17 @@ if __name__ == '__main__':
                 count=100
             ))
 
-        sched.add_job_group(steam_listing_jobs, group_delay=2)
+        sched.add_job_group(steam_listing_jobs, group_delay=5)
+
+    sched.add_job_group([RepeatableJob(
+        delay_tm=5,
+        func=data_update,
+        db_engine=db_engine,
+        title='Amazon - Listing Info',
+        data_func=get_listing_info,
+        max_failures=9,
+        item_path='/JBL-Vibe-200TWS-Wireless-Earbuds/dp/B097F4V3FJ/'
+    )], group_delay=5)
 
     while True:
         job = sched.next_job()
