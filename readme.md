@@ -4,8 +4,8 @@
 
 There are few environmental variables that this application will accept, they are:
 
-* MAX_FAILS (int, default=9): Maximum number of times a request to the steam API can fail before exitting
 * DATABASE_URL (str, default='sqlite:///:memory:'): Database URL to store records
+* LOG_FILE (str, default=None (log to console): Log filenamme, to persist logs in docker make sure this is in a volume.
 
 ### Built-in Scrapers
 
