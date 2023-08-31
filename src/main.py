@@ -11,7 +11,7 @@ from external_data.steam.api import get_listings_page
 from utils.db import init_engine
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(name)s::%(levelname)s %(asctime)s: %(message)s',
     # log to file if file provided in env, otherwise log to console
     filename=os.getenv('LOG_FILE', None)
@@ -50,7 +50,8 @@ if __name__ == '__main__':
                 data_func=get_listings_page,
                 max_failures=max_fails,
                 app_id=app_id,
-                count=100
+                count=100,
+                start=i * 100
             ))
 
         sched.add_job_group(steam_listing_jobs, group_delay=4)
