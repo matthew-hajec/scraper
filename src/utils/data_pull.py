@@ -19,8 +19,8 @@ def data_update(db_engine, title, data_func, max_failures=5, *data_args, **data_
             return
 
         if failures > 0:
-            # 3, 23, 43, 63, ... Sometimes, sending a request immediately after works fine, but if it doesn't, add a more significant amount of time
-            sleep_time = 3 + (20 * (failures - 1))
+            # 5, 25, 45, 65, ... Sometimes, sending a request immediately after works fine, but if it doesn't, add a more significant amount of time
+            sleep_time = 5 + (20 * (failures - 1))
             logger.info(
                 f'Failed ({failures}/{max_failures}), sleeping for {sleep_time} seconds')
             time.sleep(sleep_time)
