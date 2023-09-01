@@ -4,11 +4,16 @@ import requests
 import json
 import logging
 from external_data.steam.models import ItemRecord
-from external_data.steam.constants import BASE_URL, DEFAULT_HEADERS
 from external_data.errors import MalformedContent, RateLimitException
 
 
 logger = logging.getLogger(__name__)
+
+BASE_URL = 'https://steamcommunity.com'
+
+DEFAULT_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0'
+}
 
 
 class SortColumn(Enum):
