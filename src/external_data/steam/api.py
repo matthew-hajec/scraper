@@ -1,11 +1,11 @@
 from enum import Enum
 from urllib.parse import urlencode
+import requests
 import json
 import logging
-from utils.http import make_request
 from external_data.steam.models import ItemRecord
 from external_data.steam.constants import BASE_URL, DEFAULT_HEADERS
-from external_data.errors import MalformedContent
+from external_data.errors import MalformedContent, RateLimitException
 
 
 logger = logging.getLogger(__name__)
@@ -39,12 +39,20 @@ def get_listings_page(app_id: int, start=0, count=100,
         'norender': 1
     })
 
+    logger.info(
+        f'Updating Data: Steam App ID=({app_id}) ({start} to {start + count})')
+
     url = f'{BASE_URL}/market/search/render?{query_str}'
 
-    resp = make_request('GET', url, use_scrapeops=use_scrapeops,
-                        headers=headers, **req_kwargs)
-    # Raise an error if the response's status code indicates an error
-    resp.raise_for_status()
+    resp = requests.get(url, headers=headers)
+
+    if resp.status_code == 429:
+        # 120 is a somewhat arbitrary constant. It could be worth it to read this from  an environmental variable.
+        wait_for = 160
+        raise RateLimitException(
+            wait_for, f'Rate limit exceeded for {url}. Wait {wait_for} seconds before trying again.')
+    elif resp.status_code != 200:
+        resp.raise_for_status()
 
     data = json.loads(resp.text)
 

@@ -1,14 +1,12 @@
 import logging
 import time
 from sqlalchemy.orm import Session
-
+from external_data.errors import RateLimitException
 
 logger = logging.getLogger(__name__)
 
 
 def data_update(db_engine, title, data_func, max_failures=5, *data_args, **data_kwargs):
-    logger.info(f'Updating Data: {title}')
-
     start = time.perf_counter()
 
     failures = 0
@@ -28,6 +26,10 @@ def data_update(db_engine, title, data_func, max_failures=5, *data_args, **data_
         try:
             items = data_func(*data_args, **data_kwargs)
             break
+        except RateLimitException as e:
+            logger.info(
+                f'Rate limit exceeded... Waiting {e.wait_for} seconds before trying again.')
+            time.sleep(e.wait_for)
         except Exception as e:
             logger.info(
                 f'Exception raised while trying to retreive data: {str(e)}')

@@ -43,7 +43,7 @@ if __name__ == '__main__':
         for i in range(math.ceil(num_items / 100)):
             start = i * 100
             steam_listing_jobs.append(RepeatableJob(
-                delay_tm=20,
+                delay_tm=3,
                 func=data_update,
                 db_engine=db_engine,
                 title=f'Steam - {app_id} Market Listings (start={start}, count=100)',
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                 start=i * 100
             ))
 
-        sched.add_job_group(steam_listing_jobs, group_delay=4)
+        sched.add_job_group(steam_listing_jobs, group_delay=3)
 
     while True:
         job = sched.next_job()
