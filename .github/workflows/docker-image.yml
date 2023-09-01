@@ -8,7 +8,7 @@ on:
 env:
   DOCKER_USER: ${{secrets.DOCKER_USERNAME}}
   DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-  DOCKER_TAG: ${{secrets.DOCKER_USERNAME}/scraper:${{ github.sha }}
+  DOCKER_TAG: ${{secrets.DOCKER_USERNAME}}/scraper:${{ github.sha }}
 
 jobs:
   build:
