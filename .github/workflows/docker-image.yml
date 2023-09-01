@@ -8,6 +8,7 @@ on:
 env:
   DOCKER_USER: ${{secrets.DOCKER_USERNAME}}
   DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+  DOCKER_TAG: ${{secrets.DOCKER_USERNAME}/scraper:${{ github.sha }}
 
 jobs:
   build:
@@ -17,7 +18,7 @@ jobs:
     - name: Docker Login
       run: docker login -u $DOCKER_USER  -p $DOCKER_PASSWORD 
     - name: Docker Build
-      run: docker build . --file Dockerfile --tag $DOCKER_USER/scraper:${{ github.sha }}
+      run: docker build . --file Dockerfile --tag $DOCKER_TAG
     - name: Docker push
-      run: docker push scraper:${{ github.sha }}
+      run: docker push $DOCKER_TAG
 
