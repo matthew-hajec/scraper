@@ -4,10 +4,7 @@ import logging
 from dataclasses import dataclass
 from scheduling.job import RepeatableJob
 
-# <logging-setup>
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-# </logging-setup>
 
 
 class Scheduler(abc.ABC):

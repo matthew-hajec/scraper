@@ -2,10 +2,7 @@ import time
 import logging
 from functools import partial
 
-# <logging-setup>
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-# </logging-setup>
 
 
 class JobExecuteBeforeDelay(Exception):
