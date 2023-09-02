@@ -1,4 +1,5 @@
 import os
+import sys
 import math
 import logging
 import threading
@@ -21,7 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-if __name__ == '__main__':
+def main():
     logger.info("Starting application")
 
     load_dotenv()
@@ -60,3 +61,12 @@ if __name__ == '__main__':
         job = sched.next_job()
         t = threading.Thread(target=job.execute)
         t.run()
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        logger.exception(
+            'Unhandled exception, application exiting...', exc_info=True)
+        sys.exit(1)
