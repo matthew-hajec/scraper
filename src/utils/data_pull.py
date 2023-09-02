@@ -2,8 +2,23 @@ import logging
 import time
 from sqlalchemy.orm import Session
 from external_data.errors import RateLimitException
+from functools import partial
 
 logger = logging.getLogger(__name__)
+
+
+def create_update_partial(db_engine, service_name, title, data_partial, max_fails):
+    """
+      Wrap a data_partial in a data_update call, and return the partial.
+    """
+    return partial(
+        data_update,
+        db_engine=db_engine,
+        service_name=service_name,
+        title=title,
+        data_partial=data_partial,
+        max_fails=max_fails
+    )
 
 
 def data_update(db_engine, service_name, title, data_partial, max_fails):

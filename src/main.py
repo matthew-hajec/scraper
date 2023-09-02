@@ -6,7 +6,7 @@ import threading
 from dotenv import load_dotenv
 from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
-from utils.data_pull import data_update
+from utils.data_pull import data_update, create_update_partial
 from external_data.steam.models import load_tables as create_steam_db_tables
 from external_data.steam.api import get_listings_page
 from utils.db import init_engine
@@ -43,27 +43,26 @@ def main():
         steam_listing_jobs = []
 
         for i in range(math.ceil(num_items / 100)):
-            # Function which pulls the data
-            data_func = partial(
+            # Partial function which returns the data for a single page of listings
+            data_part = partial(
                 get_listings_page,
                 app_id=app_id,
                 count=100,
                 start=i * 100
             )
 
-            # Function wraps the data_func in a data_update call
-            job_func = partial(
-                data_update,
-                db_engine=db_engine,
+            # Partial function which wraps the data_partial in a data_update call
+            update_partial = create_update_partial(
+                db_engine,
                 service_name='Steam',
                 title=f'{app_id} Listings ({i * 100}-{(i + 1) * 100})',
-                data_partial=data_func,
+                data_partial=data_part,
                 max_fails=max_fails
             )
 
             steam_listing_jobs.append(RepeatableJob(
                 cooldown=3,
-                partial=job_func
+                partial=update_partial
             ))
 
         sched.add_job_group(steam_listing_jobs, group_delay=3)
