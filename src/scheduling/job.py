@@ -15,43 +15,37 @@ class JobExecuteBeforeDelay(Exception):
 
 class RepeatableJob:
     """
-    Defines a repeatable job with a delay before repeating. The caller needs to make sure that the
-    job is not executed until {delay_tm} seconds after the last execution 
+    Defines a repeating job with a delay before repeating. The caller needs to make sure that the
+    job is not executed until {cooldown} seconds after the last execution 
     """
 
-    def __init__(self, delay_tm, func, *func_args, **func_kwargs):
+    def __init__(self, cooldown, partial):
         """
-          delay_tm:       minimum number of seconds the completion of a previous execution and the start of a new one
-          func:           the function to be executed when the job is executed
-          *func_args:     arguements passed to func
-          **func_kwargs:  keyword arguments passed to func
+          cooldown:       minimum number of seconds the completion of a previous execution and the start of a new one
+          partial:        partial to be executed
         """
-        # Create function with arguments already supplied
-        self._func = partial(func, *func_args, **func_kwargs)
+        self.cooldown = cooldown
+        self.partial = partial
         self.last_run_finish = 0
-        self.delay_tm = delay_tm
 
     def is_available(self) -> bool:
         """
-        Returns True if the previous execution finished more than {delay_tm} seconds ago, or if the job has not
+        Returns True if the previous execution finished more than {cooldown} seconds ago, or if the job has not
         previously been executed. 
         """
-        available = time.time() >= self.last_run_finish + self.delay_tm
+        available = time.time() >= self.last_run_finish + self.cooldown
         logger.debug(
-            f'time: {time.time()} last_run: {self.last_run_finish} delay: {self.delay_tm} available: {available}')
-        return time.time() >= self.last_run_finish + self.delay_tm
+            f'time: {time.time()} last_run: {self.last_run_finish} delay: {self.cooldown} available: {available}')
+        return time.time() >= self.last_run_finish + self.cooldown
 
-    def execute(self, err_cb=None):
+    def execute(self):
         if not self.is_available():
             raise JobExecuteBeforeDelay(
-                f'last_run_finish={self.last_run_finish}, delay_tm={self.delay_tm}, current_tm={time.time()}')
+                f'last_run_finish={self.last_run_finish}, cooldown={self.cooldown}, current_tm={time.time()}')
         try:
-            self._func()
+            self.partial()
         except Exception as e:
-            # Either handle the error with a callback, or by default just log.
-            if err_cb == None:
-                logging.info(
-                    f'Job produced an exception that was not caught within it\'s function, continuing as normal, but logging. Error: {str(e)}', exc_info=True)
-            else:
-                err_cb(e)
+            logging.info(
+                f'Job produced an exception that was not caught within it\'s function, continuing as normal, but logging. Error: {str(e)}', exc_info=True)
+
         self.last_run_finish = time.time()

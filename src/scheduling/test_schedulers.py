@@ -1,12 +1,14 @@
 import time
 from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
+from functools import partial
 
 
 def test_GroupedDelayScheduler_runs_job():
     test_data = {'num': 1}
     s = GroupedDelayScheduler()
-    j = RepeatableJob(2, test_data.__setitem__, 'num', 2)
+    p = partial(test_data.__setitem__, 'num', 2)
+    j = RepeatableJob(2, p)
 
     s.add_job_group([j], group_delay=2)
 
@@ -19,7 +21,8 @@ def test_GroupDelayScheduler_enforces_group_delay():
     error = 0.5
 
     s = GroupedDelayScheduler()
-    j = RepeatableJob(1, print, time.time())
+    p = partial(print, 'hello')
+    j = RepeatableJob(1, p)
 
     # Group delay gt the single job's delay, expected to take precedence
     s.add_job_group([j], group_delay=2)
@@ -35,8 +38,10 @@ def test_GroupDelayScheduler_enforces_jobs_delay():
     error = 0.5
 
     s = GroupedDelayScheduler()
-    j1 = RepeatableJob(1, print, 'j1', time.time())
-    j2 = RepeatableJob(2, print, 'j2', time.time())
+    p1 = partial(print, 'hello 1')
+    j1 = RepeatableJob(1, p1)
+    p2 = partial(print, 'hello 2')
+    j2 = RepeatableJob(2, p2)
 
     s.add_job_group([j1, j2], group_delay=0)
 
@@ -56,8 +61,12 @@ def test_GroupDelayScheduler_rotates_groups():
     group2_state = {'key': 20}
 
     s = GroupedDelayScheduler()
-    group1 = [RepeatableJob(99, group1_state.__setitem__, 'key', 11)]
-    group2 = [RepeatableJob(99, group2_state.__setitem__, 'key', 21)]
+    p1 = partial(group1_state.__setitem__, 'key', 11)
+    j1 = RepeatableJob(1, p1)
+    p2 = partial(group2_state.__setitem__, 'key', 21)
+    j2 = RepeatableJob(1, p2)
+    group1 = [j1]
+    group2 = [j2]
     s.add_job_group(group1, group_delay=2)
     s.add_job_group(group2, group_delay=2)
 
@@ -93,11 +102,13 @@ def test_GroupScheduler_respects_group_delay():
 
     s = GroupedDelayScheduler()
 
-    group1 = [RepeatableJob(5, print, 'group 1, job 1'),
-              RepeatableJob(5, print, 'group 1, job 2')]
+    p = partial(print, 'hello')
 
-    group2 = [RepeatableJob(1, print, 'group 2, job 1'),
-              RepeatableJob(1, print, 'group 2, job 2')]
+    group1 = [RepeatableJob(5, p),
+              RepeatableJob(5, p)]
+
+    group2 = [RepeatableJob(1, p),
+              RepeatableJob(1, p)]
 
     s.add_job_group(group1, group_delay=5)
     s.add_job_group(group2, group_delay=5)
