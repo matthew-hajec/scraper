@@ -43,15 +43,21 @@ def main():
         steam_listing_jobs = []
 
         for i in range(math.ceil(num_items / 100)):
+            # Function which pulls the data
+            data_func = partial(
+                get_listings_page,
+                app_id=app_id,
+                count=100,
+                start=i * 100
+            )
+
+            # Function wraps the data_func in a data_update call
             job_func = partial(
                 data_update,
                 db_engine=db_engine,
                 title=f'Steam - {app_id} Market Listings (start={i * 100}, count=100)',
-                data_func=get_listings_page,
-                max_failures=max_fails,
-                app_id=app_id,
-                count=100,
-                start=i * 100
+                data_partial=data_func,
+                max_fails=max_fails
             )
 
             steam_listing_jobs.append(RepeatableJob(
