@@ -55,7 +55,8 @@ def main():
             job_func = partial(
                 data_update,
                 db_engine=db_engine,
-                title=f'Steam - {app_id} Market Listings (start={i * 100}, count=100)',
+                service_name='Steam',
+                title=f'{app_id} Listings ({i * 100}-{(i + 1) * 100})',
                 data_partial=data_func,
                 max_fails=max_fails
             )

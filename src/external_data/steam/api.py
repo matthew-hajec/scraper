@@ -44,9 +44,6 @@ def get_listings_page(app_id: int, start=0, count=100,
         'norender': 1
     })
 
-    logger.info(
-        f'Updating Data: Steam App ID=({app_id}) ({start} to {start + count})')
-
     url = f'{BASE_URL}/market/search/render?{query_str}'
 
     resp = requests.get(url, headers=headers)
