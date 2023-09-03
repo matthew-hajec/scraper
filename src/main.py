@@ -6,7 +6,8 @@ import threading
 from dotenv import load_dotenv
 from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
-from utils.data_pull import data_update, create_update_partial
+from utils.data_pull import create_update_partial
+from models import load_tables as create_main_db_tables
 from external_data.steam.models import load_tables as create_steam_db_tables
 from external_data.steam.api import get_listings_page
 from utils.db import init_engine
@@ -30,6 +31,8 @@ def main():
 
     db_engine = init_engine()
     logger.info(f'Running with database dialect: {db_engine.dialect.name}')
+
+    create_main_db_tables(db_engine)
 
     sched = GroupedDelayScheduler()
 
@@ -65,7 +68,7 @@ def main():
                 partial=update_partial
             ))
 
-        sched.add_job_group(steam_listing_jobs, group_delay=3)
+        sched.add_job_group(steam_listing_jobs, group_delay=4)
 
     while True:
         job = sched.next_job()

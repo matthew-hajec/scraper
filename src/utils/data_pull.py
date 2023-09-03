@@ -3,8 +3,13 @@ import time
 from sqlalchemy.orm import Session
 from external_data.errors import RateLimitException
 from functools import partial
+from models import DataUpdateRecord
 
 logger = logging.getLogger(__name__)
+
+
+class TooManyFailuresError(Exception):
+    pass
 
 
 def create_update_partial(db_engine, service_name, title, data_partial, max_fails):
@@ -21,48 +26,61 @@ def create_update_partial(db_engine, service_name, title, data_partial, max_fail
     )
 
 
-def data_update(db_engine, service_name, title, data_partial, max_fails):
-    log_prefix = f'{service_name} -> [{title}]'
-
-    start = time.perf_counter()
-
-    logger.info(
-        f'{log_prefix} Starting data update... (max_fails={max_fails})')
-
-    failures = 0
-    while True:
-        if failures >= max_fails:
-            logger.info(
-                f'{log_prefix} Max failures acheived ({failures}/{max_fails}). Exiting update.')
-            return
-
-        if failures > 0:
-            # 5, 25, 45, 65, ... Sometimes, sending a request immediately after works fine, but if it doesn't, add a more significant amount of time
-            sleep_time = 5 + (20 * (failures - 1))
-            logger.info(
-                f'{log_prefix} Failed ({failures}/{max_fails}), sleeping for {sleep_time} seconds')
-            time.sleep(sleep_time)
-
+# Returns a tuple of (number of attempts, list of items)
+def _pull_external_data(data_partial, log_pref, max_fails) -> (int, list):
+    for i in range(max_fails):
+        logger.info(
+            f'{log_pref} Pulling data... ({i + 1}/{max_fails})')
         try:
-            items = data_partial()
-            break
+            return (i + 1, data_partial())
         except RateLimitException as e:
+            # Rate limit exceptions should contain a wait_for field, which is the number of seconds to wait before trying again
             logger.info(
-                f'{log_prefix} Rate limit exceeded... Waiting {e.wait_for} seconds before trying again.')
+                f'{log_pref} Rate limit exceeded... Waiting {e.wait_for} seconds before trying again.')
             time.sleep(e.wait_for)
         except Exception as e:
+            # 5 seconds, 15 seconds, 25 seconds, ....
+            sleep_time = (10 * i) + 5
             logger.info(
-                f'{log_prefix} Exception raised while trying to retreive data: {str(e)}')
-            failures += 1
+                f'{log_pref} Exception raised while trying to retreive date (sleeping for {sleep_time}): {str(e)}')
+            time.sleep(sleep_time)
+            continue
+    raise TooManyFailuresError()
 
-    if not hasattr(items, '__iter__') and not hasattr(items, '__next__'):
-        raise TypeError(
-            '{log_prefix} data_func should return an iterable.')
 
-    for item in items:
-        with Session(db_engine) as session:
-            session.add(item)
-            session.commit()
+def data_update(db_engine, service_name, title, data_partial, max_fails):
+    """Calls data_partial, and then updates the database with the results. Retries up to max_fails times."""
+
+    log_prefix = f'{service_name} -> [{title}]'  # Prefix for logging
+
+    # Start timer for logging total time taken
+    start = time.perf_counter()
+
+    # Create a record of the data update, we will update this record with a message when the update is complete, or if it fails
+    data_update_record = DataUpdateRecord(
+        service_name=service_name,
+        title=title
+    )
+
+    # Create a list to store the items returned by data_partial
+    items = []
+
+    try:
+        n_attempts, items = _pull_external_data(
+            data_partial, log_prefix, max_fails)
+        data_update_record.success = True
+        data_update_record.message = f'Success on attempt: {n_attempts}'
+    except TooManyFailuresError:
+        logger.info(f'{log_prefix} Failed too many times... ({max_fails})')
+        data_update_record.message = f'Failed too many times ({max_fails})'
+        data_update_record.success = False
+        return
+
+    # Update the database with the results
+    with Session(db_engine) as session:
+        session.add(data_update_record)
+        session.add_all(items)
+        session.commit()
 
     logger.info(
         f'{log_prefix} Data update took {time.perf_counter() - start}')
