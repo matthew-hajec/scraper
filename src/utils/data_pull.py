@@ -68,12 +68,18 @@ def data_update(db_engine, service_name, title, data_partial, max_fails):
     try:
         n_attempts, items = _pull_external_data(
             data_partial, log_prefix, max_fails)
+
+        # Update the data_update_record
         data_update_record.success = True
-        data_update_record.message = f'Success on attempt after {time.perf_counter() - start}s: {n_attempts}'
+        data_update_record.attempts = n_attempts
+        data_update_record.run_time = time.perf_counter() - start
     except TooManyFailuresError:
         logger.info(f'{log_prefix} Failed too many times... ({max_fails})')
-        data_update_record.message = f'Failed too many times after {time.perf_counter() - start}s (max_fails={max_fails})'
+
+        # Update the data_update_record
         data_update_record.success = False
+        data_update_record.attempts = max_fails
+        data_update_record.run_time = time.perf_counter() - start
         return
 
     # Update the database with the results

@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import func
+from typing import Optional
 
 
 class Base(DeclarativeBase):
@@ -13,7 +14,10 @@ class DataUpdateRecord(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     service_name: Mapped[str]
     title: Mapped[str]
-    message: Mapped[str]
+    success: Mapped[bool]
+    message: Mapped[Optional[str]]
+    attempts: Mapped[int]
+    run_time: Mapped[float]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
 
