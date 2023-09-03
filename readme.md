@@ -4,8 +4,8 @@
 
 There are few environmental variables that this application will accept, they are:
 
-* DATABASE_URL (str, default='sqlite:///:memory:'): Database URL to store records
-* LOG_FILE (str, default=None (log to console): Log filenamme, to persist logs in docker make sure this is in a volume.
+* DATABASE_URL (str, default='sqlite:///:memory:'):  Database URL to store records
+* LOG_FILE     (str, default=None (log to console)): Log filenamme, to persist logs in docker make sure this is in a volume.
 
 ### Built-in Scrapers
 
@@ -19,6 +19,7 @@ To enable, simply set the required properties for a source.
 
 Set ENV Variables:
 
-* STEAM_ITEMS_APP_ID    (int, required): app id for the items you want to scrape
-* STEAM_ITEMS_NUM_ITEMS (int, required): number of items to fetch
-* STEAM_ITEMS_MAX_FAILS (int, optional): Maximum number of times a request to the steam API can fail before exitting (default=9)
+* STEAM_GROUP_DELAY     (int, default=10): the group delay for visiting steam, this property is the same for all steam sources
+* STEAM_ITEMS_APP_ID    (int, required):   app id for the items you want to scrape
+* STEAM_ITEMS_NUM_ITEMS (int, required):   number of items to fetch
+* STEAM_ITEMS_MAX_FAILS (int, optional):   Maximum number of times a request to the steam API can fail before exitting (default=9)

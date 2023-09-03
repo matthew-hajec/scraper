@@ -42,6 +42,7 @@ def main():
         app_id = int(os.getenv('STEAM_ITEMS_APP_ID'))
         num_items = int(os.getenv('STEAM_ITEMS_NUM_ITEMS'))
         max_fails = int(os.getenv('STEAM_ITEMS_MAX_FAILS', '9'))
+        group_delay = int(os.getenv('STEAM_GROUP_DELAY', '6'))
 
         steam_listing_jobs = []
 
@@ -67,7 +68,7 @@ def main():
                 partial=update_partial
             ))
 
-        sched.add_job_group(steam_listing_jobs, group_delay=6)
+        sched.add_job_group(steam_listing_jobs, group_delay=group_delay)
 
     while True:
         job = sched.next_job()
