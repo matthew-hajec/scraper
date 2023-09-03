@@ -8,7 +8,7 @@ class Base(DeclarativeBase):
 
 
 class DataUpdateRecord(Base):
-    __tablename__ = "date_update_records"
+    __tablename__ = "data_update_records"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     service_name: Mapped[str]
