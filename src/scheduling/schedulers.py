@@ -33,14 +33,10 @@ class _JobGroup:
             f'Scheduling next job... (job_offset={self.job_offset}, job_count={len(self.jobs)})')
 
         num_jobs = len(self.jobs)
-        for i in range(num_jobs):
-            job = self.jobs[(i + self.job_offset) % num_jobs]
-            if job.is_available():
-                self.job_offset += 1
-                self.last_job_start = time.time()
-                return job
-        time.sleep(1)
-        return self.next_job()
+        job = self.jobs[(self.job_offset) % num_jobs]
+        self.job_offset += 1
+        self.last_job_start = time.time()
+        return job
 
 
 class GroupedDelayScheduler(Scheduler):
@@ -87,7 +83,7 @@ class GroupedDelayScheduler(Scheduler):
 
             logger.debug(f'Selected group idx: {group_idx}')
             return group
-        time.sleep(1)
+        time.sleep(0.1)
         return self._next_group()
 
     def next_job(self) -> RepeatableJob:

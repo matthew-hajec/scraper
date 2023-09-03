@@ -64,11 +64,10 @@ def main():
             )
 
             steam_listing_jobs.append(RepeatableJob(
-                cooldown=3,
                 partial=update_partial
             ))
 
-        sched.add_job_group(steam_listing_jobs, group_delay=4)
+        sched.add_job_group(steam_listing_jobs, group_delay=6)
 
     while True:
         job = sched.next_job()
