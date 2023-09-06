@@ -7,11 +7,15 @@ from dotenv import load_dotenv
 from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
 from utils.data_pull import create_update_partial
-from models import load_tables as create_main_db_tables
-from external_data.steam.models import load_tables as create_steam_db_tables
-from external_data.steam.api import get_listings_page
+from models import load_tables as init_main_db_tables
 from utils.db import init_engine
 from functools import partial
+
+from external_data.steam.models import load_tables as init_steam_db_tables
+from external_data.steam.api import get_listings_page
+from external_data.yahoofinance.models import load_tables as init_yahoofinance_db_tables
+from external_data.yahoofinance.api import get_currency_page
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,12 +36,32 @@ def main():
     db_engine = init_engine()
     logger.info(f'Running with database dialect: {db_engine.dialect.name}')
 
-    create_main_db_tables(db_engine)
+    # Initialize database tables if they do not exist
+    init_main_db_tables(db_engine)
 
     sched = GroupedDelayScheduler()
 
-    if (os.getenv('STEAM_ITEMS_APP_ID')):
-        create_steam_db_tables(db_engine)
+    if os.getenv('YAHOOFINANCE_CURRENCY'):
+        init_yahoofinance_db_tables(db_engine)
+
+        group_delay = int(os.getenv('YAHOO_GROUP_DELAY', '100'))
+
+        data_part = partial(get_currency_page)
+
+        update_part = create_update_partial(
+            db_engine,
+            service_name='Yahoo Finance',
+            title='Currency',
+            data_partial=data_part,
+            max_fails=9
+        )
+
+        sched.add_job_group([
+            RepeatableJob(partial=update_part)
+        ], group_delay=group_delay)
+
+    if os.getenv('STEAM_ITEMS_APP_ID'):
+        init_steam_db_tables(db_engine)
 
         app_id = int(os.getenv('STEAM_ITEMS_APP_ID'))
         num_items = int(os.getenv('STEAM_ITEMS_NUM_ITEMS'))
@@ -56,7 +80,7 @@ def main():
             )
 
             # Partial function which wraps the data_partial in a data_update call
-            update_partial = create_update_partial(
+            update_part = create_update_partial(
                 db_engine,
                 service_name='Steam',
                 title=f'{app_id} Listings ({i * 100}-{(i + 1) * 100})',
@@ -65,7 +89,7 @@ def main():
             )
 
             steam_listing_jobs.append(RepeatableJob(
-                partial=update_partial
+                partial=update_part
             ))
 
         sched.add_job_group(steam_listing_jobs, group_delay=group_delay)

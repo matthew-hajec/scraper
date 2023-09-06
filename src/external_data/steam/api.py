@@ -68,9 +68,9 @@ def get_listings_page(app_id: int, start=0, count=100,
     if len(data['results']) == 0:
         raise MalformedContent('"results" contained no elements')
 
-    all_items = []
+    all_records = []
     for result in data['results']:
-        all_items.append(ItemRecord(
+        all_records.append(ItemRecord(
             item_url="",
             name=result['name'],
             hash_name=result['hash_name'],
@@ -79,4 +79,4 @@ def get_listings_page(app_id: int, start=0, count=100,
             sale_price_text=result['sale_price_text'],
         ))
 
-    return all_items
+    return all_records
