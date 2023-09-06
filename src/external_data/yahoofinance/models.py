@@ -13,7 +13,7 @@ class CurrencyRecord(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    last_price: Mapped[int]
+    last_price: Mapped[float]
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
     def __repr__(self) -> str:
