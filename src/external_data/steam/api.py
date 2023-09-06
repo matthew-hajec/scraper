@@ -1,3 +1,4 @@
+import math
 from enum import Enum
 from urllib.parse import urlencode
 import requests
@@ -5,6 +6,9 @@ import json
 import logging
 from external_data.steam.models import ItemRecord
 from external_data.errors import MalformedContent, RateLimitException
+from scheduling.job import RepeatableJob
+from functools import partial
+from utils.data_pull import create_update_partial
 
 
 logger = logging.getLogger(__name__)
@@ -27,6 +31,41 @@ class SortDir(Enum):
     """Enum for the sort direction of the results"""
     ASC = 'asc'
     DESC = 'desc'
+
+
+def create_steam_jobs(db_engine, config) -> list[RepeatableJob]:
+    if 'AppID' not in config:
+        raise ValueError('Config must contain an "AppID" field.')
+    if 'NumItems' not in config:
+        raise ValueError('Config must contain an "NumItems" field.')
+
+    app_id = int(config['AppID'])
+    num_items = int(config['NumItems'])
+    max_fails = int(config['MaxFailures'])
+
+    jobs = []
+
+    for i in range(math.ceil(num_items / 100)):
+        data_part = partial(
+            get_listings_page,
+            app_id=app_id,
+            count=100,
+            start=i * 100
+        )
+
+        update_part = create_update_partial(
+            db_engine,
+            service_name='Steam',
+            title=f'{app_id} Item Listings ({i * 100}-{(i + 1) * 100})',
+            data_partial=data_part,
+            max_fails=max_fails
+        )
+
+        jobs.append(RepeatableJob(
+            partial=update_part
+        ))
+
+    return jobs
 
 
 def get_listings_page(app_id: int, start=0, count=100,

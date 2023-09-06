@@ -3,6 +3,10 @@ import logging
 from bs4 import BeautifulSoup
 from external_data.yahoofinance.models import CurrencyRecord
 from external_data.errors import MalformedContent, RateLimitException
+from scheduling.job import RepeatableJob
+from functools import partial
+from utils.data_pull import create_update_partial
+
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +15,31 @@ BASE_URL = 'https://finance.yahoo.com/currencies'
 DEFAULT_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0'
 }
+
+
+def create_currency_jobs(db_engine, config) -> list[RepeatableJob]:
+    jobs = []
+
+    max_fails = int(config['MaxFailures'])
+
+    data_part = partial(
+        get_currency_page,
+        headers=DEFAULT_HEADERS
+    )
+
+    update_part = create_update_partial(
+        db_engine,
+        service_name='Yahoo Finance',
+        title='Currencies',
+        data_partial=data_part,
+        max_fails=max_fails
+    )
+
+    jobs.append(RepeatableJob(
+        partial=update_part
+    ))
+
+    return jobs
 
 
 def get_currency_page(headers=DEFAULT_HEADERS):
