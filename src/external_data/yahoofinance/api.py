@@ -63,7 +63,7 @@ def get_currency_page(headers=DEFAULT_HEADERS):
     all_records = []
     for result in zip(names, prices):
         name = result[0].text
-        price = result[1].text
+        price = float(result[1].text.replace(',', ''))
 
         record = CurrencyRecord(name=name, last_price=price)
         all_records.append(record)
