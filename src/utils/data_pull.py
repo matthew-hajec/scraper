@@ -89,4 +89,4 @@ def data_update(db_engine, service_name, title, data_partial, max_fails):
         session.commit()
 
     logger.info(
-        f'{log_prefix} Data update took {time.perf_counter() - start}s')
+        f'{log_prefix} Data update took {time.perf_counter() - start}s, retrieved {len(items)} items.')
