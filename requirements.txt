@@ -1,3 +1,4 @@
+beautifulsoup4==4.12.2
 certifi==2023.7.22
 charset-normalizer==3.2.0
 colorama==0.4.6
@@ -11,6 +12,7 @@ psycopg2==2.9.7
 pytest==7.4.0
 python-dotenv==1.0.0
 requests==2.31.0
+soupsieve==2.5
 SQLAlchemy==2.0.20
 tomli==2.0.1
 typing_extensions==4.7.1

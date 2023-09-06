@@ -4,9 +4,7 @@ import math
 import logging
 import threading
 from dotenv import load_dotenv
-from scheduling.job import RepeatableJob
 from scheduling.schedulers import GroupedDelayScheduler
-from utils.data_pull import create_update_partial
 from models import load_tables as init_main_db_tables
 from utils.db import init_engine
 from config.config import create_config
