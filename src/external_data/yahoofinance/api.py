@@ -9,6 +9,7 @@ from utils.data_pull import create_update_partial
 
 
 logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
 BASE_URL = 'https://finance.yahoo.com/currencies'
 
@@ -50,8 +51,10 @@ def get_currency_page(headers=DEFAULT_HEADERS):
 
     soup = BeautifulSoup(resp.text, 'html.parser')
 
-    names = soup.find_all('td', attrs=('aria-label', 'Name'))
-    prices = soup.find_all('td', attrs=('aria-label', 'Last Price'))
+    names = soup.find_all('td', attrs={'aria-label': 'Name'})
+    prices = soup.find_all('td', attrs={'aria-label': 'Last Price'})
+
+    logger.debug(f'Found {len(names)} names and {len(prices)} prices.')
 
     if len(names) != len(prices):
         raise MalformedContent(
