@@ -48,6 +48,7 @@ def create_steam_jobs(db_engine, config) -> list[RepeatableJob]:
     for i in range(math.ceil(num_items / 100)):
         data_part = partial(
             get_listings_page,
+            config,
             app_id=app_id,
             count=100,
             start=i * 100
@@ -68,7 +69,7 @@ def create_steam_jobs(db_engine, config) -> list[RepeatableJob]:
     return jobs
 
 
-def get_listings_page(app_id: int, start=0, count=100,
+def get_listings_page(config, app_id: int, start=0, count=100,
                       sort_col=SortColumn.NAME, sort_dir=SortDir.ASC,
                       use_scrapeops=False, headers=DEFAULT_HEADERS, **req_kwargs) -> (int, list[ItemRecord]):
 
@@ -89,7 +90,7 @@ def get_listings_page(app_id: int, start=0, count=100,
 
     if resp.status_code == 429:
         # 120 is a somewhat arbitrary constant. It could be worth it to read this from  an environmental variable.
-        wait_for = 160
+        wait_for = float(config['OverloadSleepTime'].replace(',', ''))
         raise RateLimitException(
             wait_for, f'Rate limit exceeded for {url}. Wait {wait_for} seconds before trying again.')
     elif resp.status_code != 200:

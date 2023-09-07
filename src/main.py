@@ -42,6 +42,8 @@ def main():
     # Create the scheduler
     sched = GroupedDelayScheduler()
 
+    print(config['YahooFinance.Currency']['Enabled'].lower())
+
     # Add the jobs to the scheduler...
     if config['YahooFinance.Currency']['Enabled'].lower() == 'true':
         init_yahoofinance_db_tables(db_engine)

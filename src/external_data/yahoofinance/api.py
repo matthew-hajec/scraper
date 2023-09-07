@@ -25,6 +25,7 @@ def create_currency_jobs(db_engine, config) -> list[RepeatableJob]:
 
     data_part = partial(
         get_currency_page,
+        config,
         headers=DEFAULT_HEADERS
     )
 
@@ -43,18 +44,21 @@ def create_currency_jobs(db_engine, config) -> list[RepeatableJob]:
     return jobs
 
 
-def get_currency_page(headers=DEFAULT_HEADERS):
+def get_currency_page(config, headers=DEFAULT_HEADERS):
     url = f'{BASE_URL}/currencies'
 
     resp = requests.get(BASE_URL, headers=headers)
-    resp.raise_for_status()
+
+    if resp.status_code != 200:
+        # 120 is a somewhat arbitrary constant. It could be worth it to read this from  an environmental variable.
+        wait_for = float(config['OverloadSleepTime'].replace(',', ''))
+        raise RateLimitException(
+            wait_for, f'Rate limit exceeded for {url}. Wait {wait_for} seconds before trying again.')
 
     soup = BeautifulSoup(resp.text, 'html.parser')
 
     names = soup.find_all('td', attrs={'aria-label': 'Name'})
     prices = soup.find_all('td', attrs={'aria-label': 'Last Price'})
-
-    logger.debug(f'Found {len(names)} names and {len(prices)} prices.')
 
     if len(names) != len(prices):
         raise MalformedContent(
