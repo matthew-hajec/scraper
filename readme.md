@@ -6,6 +6,7 @@ There are few environmental variables that this application will accept, they ar
 
 * DATABASE_URL (str, default='sqlite:///:memory:'):  Database URL to store records
 * LOG_FILE     (str, default=None (log to console)): Log filenamme, to persist logs in docker make sure this is in a volume.
+* CONFIG_FILE  (str, default=None):                  Config ini filepath
 
 ### Built-in Scrapers
 
@@ -17,7 +18,7 @@ To enable, simply set the required properties for a source.
 
 #### Steam Items
 
-Set ENV Variables:
+Set config variables 
 
 * STEAM_GROUP_DELAY     (int): the group delay for visiting steam, this property is the same for all steam sources
 * STEAM_ITEMS_APP_ID    (int): app id for the items you want to scrape
