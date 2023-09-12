@@ -1,0 +1,24 @@
+services:
+  scraper:
+    image: scraper
+    volumes:
+      - ./logs:/var/log/scraper
+    environment:
+      - LOG_FILE=/var/log/scraper/app.log
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=postgresql://scraper:scraper@postgres:5432/scraper
+    configs:
+      - scraper_config
+    depends_on:
+      - postgres
+    deploy:
+      replicas: 3
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=scraper
+      - POSTGRES_PASSWORD=scraper
+      - POSTGRES_DB=scraper
+configs:
+  scraper_config:
+    external: true

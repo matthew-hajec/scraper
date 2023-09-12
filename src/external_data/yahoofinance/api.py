@@ -21,7 +21,7 @@ DEFAULT_HEADERS = {
 def create_currency_jobs(db_engine, config) -> list[RepeatableJob]:
     jobs = []
 
-    max_fails = int(config["MaxFailures"])
+    max_fails = int(config["maxfailures"])
 
     data_part = partial(get_currency_page, config, headers=DEFAULT_HEADERS)
 
