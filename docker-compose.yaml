@@ -13,6 +13,8 @@ services:
       - postgres
     deploy:
       replicas: 3
+      placement:
+        max_replicas_per_node: 1
   postgres:
     image: postgres
     environment:
