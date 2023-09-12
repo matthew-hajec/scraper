@@ -21,8 +21,10 @@ class ItemRecord(Base):
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
     def __repr__(self) -> str:
-        return f'ItemRecord(id={self.id}, item_url={self.item_url }, name={self.name}, hash_name={self.hash_name}, ' + \
-               f'sell_listings={self.sell_listings}, sell_price={self.sell_price}, sale_price_text={self.sale_price_text})'
+        return (
+            f"ItemRecord(id={self.id}, item_url={self.item_url }, name={self.name}, hash_name={self.hash_name}, "
+            + f"sell_listings={self.sell_listings}, sell_price={self.sell_price}, sale_price_text={self.sale_price_text})"
+        )
 
 
 def load_tables(engine):

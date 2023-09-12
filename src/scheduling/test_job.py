@@ -8,10 +8,10 @@ def test_runs_job():
     modifying an existing dict within the job and then seeing if the dict
     was updated (meaning the function ran).
     """
-    state = {'num': 1}
+    state = {"num": 1}
 
-    p = partial(state.__setitem__, 'num', 2)
+    p = partial(state.__setitem__, "num", 2)
 
     j = RepeatableJob(p)
     j.execute()
-    assert state['num'] == 2
+    assert state["num"] == 2

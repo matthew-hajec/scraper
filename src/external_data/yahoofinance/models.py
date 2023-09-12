@@ -17,7 +17,7 @@ class CurrencyRecord(Base):
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
     def __repr__(self) -> str:
-        return f'CurrencyRecord(id={self.id}, name={self.name}, last_price={self.last_price})'
+        return f"CurrencyRecord(id={self.id}, name={self.name}, last_price={self.last_price})"
 
 
 def load_tables(engine):

@@ -1,5 +1,23 @@
 # Steam Market Item Scraper.
 
+
+## Configuration
+
+### Non-Secret
+
+For non-secret information, a simple "ini" file is used containing configuration for the whole
+application. 
+
+The application will attempt to load a configuration file from serveral locations. The application
+will use the first configuration file it finds, searching in the following locations (in order):
+
+1. The value of the "SCRAPER_CONFIG" environment variable
+2. /scraper_config 
+
+### Secret
+
+For secret information, 
+
 ## Howto:
 
 There are few environmental variables that this application will accept, they are:
@@ -7,6 +25,9 @@ There are few environmental variables that this application will accept, they ar
 * DATABASE_URL (str, default='sqlite:///:memory:'):  Database URL to store records
 * LOG_FILE     (str, default=None (log to console)): Log filenamme, to persist logs in docker make sure this is in a volume.
 * CONFIG_FILE  (str, default=None):                  Config ini filepath
+
+
+
 
 ### Built-in Scrapers
 

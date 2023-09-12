@@ -10,7 +10,7 @@ class RepeatableJob:
 
     def __init__(self, partial):
         """
-          partial:        partial to be executed
+        partial:        partial to be executed
         """
         self.partial = partial
 
@@ -19,4 +19,6 @@ class RepeatableJob:
             self.partial()
         except Exception as e:
             logging.info(
-                f'Job produced an exception that was not caught within it\'s function, continuing as normal, but logging. Error: {str(e)}', exc_info=True)
+                f"Job produced an exception that was not caught within it's function, continuing as normal, but logging. Error: {str(e)}",
+                exc_info=True,
+            )
