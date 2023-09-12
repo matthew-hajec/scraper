@@ -95,7 +95,7 @@ def get_listings_page(
 
     if resp.status_code == 429:
         # 120 is a somewhat arbitrary constant. It could be worth it to read this from  an environmental variable.
-        wait_for = float(config["overloadsleeptime"].replace(",", ""))
+        wait_for = float(config["overloaddelay"].replace(",", ""))
         raise RateLimitException(
             wait_for,
             f"Rate limit exceeded for {url}. Wait {wait_for} seconds before trying again.",

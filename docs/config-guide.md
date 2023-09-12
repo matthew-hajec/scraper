@@ -7,7 +7,7 @@ The application will attempt to load a configuration file from serveral location
 will use the first configuration file it finds, searching in the following locations (in order):
 
 1. The value of the "CONFIG_FILE" environment variable
-2. /scraper_config.ini
+2. /scraper_config
 
 ## Application Configuration Options
 | SECTION | KEY       | DATATYPE                                                 | DEFAULT                  | DESCRIPTION                                                       | Nullable? |
