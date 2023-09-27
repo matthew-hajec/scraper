@@ -3,21 +3,16 @@ import time
 import sys
 import threading
 import logging
-from schema import Schema, Use
-from dotenv import load_dotenv
 from scheduling.schedulers import GroupedDelayScheduler
 from models import load_tables as init_main_db_tables
 from utils.db import init_engine
 from config.config import Config
 from root_conf_schema import root_config_schema
 
-from external_data.steam.models import load_tables as init_steam_db_tables
-from external_data.steam.api import create_steam_jobs
-from external_data.yahoofinance.models import load_tables as init_yahoofinance_db_tables
-from external_data.yahoofinance.api import create_currency_jobs
-
-# Read the .env file
-load_dotenv()
+from data_sources.steam.models import load_tables as init_steam_db_tables
+from data_sources.steam.api import create_steam_jobs
+from data_sources.yahoofinance.models import load_tables as init_yahoofinance_db_tables
+from data_sources.yahoofinance.api import create_currency_jobs
 
 # Initialize the logger
 logging.basicConfig(
