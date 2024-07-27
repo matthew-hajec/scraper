@@ -1,5 +1,8 @@
 # Steam Market Item Scraper.
 
+Please don't use this without permission
+- https://news.bloomberglaw.com/litigation/ryanair-wins-jury-verdict-in-scraping-case-against-booking-com
+
 
 ## Configuration
 
@@ -53,5 +56,4 @@ Set ENV Variable:
 * YAHOOFINANCE_CURRENCY (any): runs the yahoo finance currency scraper if set to any value
 
 
-- Please don't use this without permission -
-- https://news.bloomberglaw.com/litigation/ryanair-wins-jury-verdict-in-scraping-case-against-booking-com
+
