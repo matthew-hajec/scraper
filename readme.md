@@ -31,7 +31,7 @@ There are few environmental variables that this application will accept, they ar
 
 ### Built-in Scrapers
 
-There are a bunch of built in scrapers. Each scraper slowly pulls information from it's source, and there can only
+Each scraper slowly pulls information from it's source, and there can only
 ever be a single active instance of any single source. However, by having one machine manage plenty of sources, we 
 can keep the IO busy (aka, have a high volume of data dripping in) while not overloading sites.
 
@@ -51,3 +51,7 @@ Set config variables
 Set ENV Variable:
 
 * YAHOOFINANCE_CURRENCY (any): runs the yahoo finance currency scraper if set to any value
+
+
+- Please don't use this without permission -
+- https://news.bloomberglaw.com/litigation/ryanair-wins-jury-verdict-in-scraping-case-against-booking-com
